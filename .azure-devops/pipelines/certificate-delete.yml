@@ -1,0 +1,24 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+- name: environment
+  type: string
+  default: dev
+  values:
+  - dev
+  - test
+  - stage
+  - prod
+- name: keyName
+  type: string
+  default: sjm
+
+steps:
+- template: ../templates/tmpl-certificate-sf-delete.yml
+  parameters:
+    workingDirectory: "$(System.DefaultWorkingDirectory)/apps/sjm"
+    environment: ${{ parameters.environment }}
+    keyName: ${{ parameters.keyName }}

@@ -1,0 +1,28 @@
+parameters:
+- name: workingDirectory
+  type: string
+  default: apps/sjm
+- name: nodeVersion
+  type: string
+  default: '20.x'
+- name: pnpmVersion
+  type: string
+  default: '9'
+
+steps:
+- task: NodeTool@0
+  displayName: Use Node.js ${{ parameters.nodeVersion }}
+  inputs:
+    versionSpec: ${{ parameters.nodeVersion }}
+
+- script: |
+    corepack enable
+    corepack prepare pnpm@${{ parameters.pnpmVersion }} --activate
+    pnpm --version
+  displayName: Install pnpm
+  workingDirectory: ${{ parameters.workingDirectory }}
+
+- script: |
+    pnpm install --frozen-lockfile
+  displayName: Install dependencies
+  workingDirectory: ${{ parameters.workingDirectory }}

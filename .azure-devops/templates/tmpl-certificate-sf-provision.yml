@@ -1,0 +1,70 @@
+parameters:
+- name: workingDirectory
+  type: string
+  default: apps/sjm
+- name: environment
+  type: string
+  default: dev
+- name: keyName
+  type: string
+  default: sjm
+- name: azdoProject
+  type: string
+  default: $(System.TeamProject)
+- name: sfInstanceUrl
+  type: string
+  default: https://your-instance.my.salesforce.com
+- name: sfApiVersion
+  type: string
+  default: '61.0'
+- name: sfProfileName
+  type: string
+  default: 'System Administrator'
+- name: sfProfileId
+  type: string
+  default: ''
+- name: azdoOrgUrl
+  type: string
+  default: $(System.CollectionUri)
+- name: azdoPat
+  type: string
+  default: $(AZDO_PAT)
+  secure: true
+- name: sfAccessToken
+  type: string
+  default: $(SF_ACCESS_TOKEN)
+  secure: true
+- name: nodeVersion
+  type: string
+  default: '20.x'
+- name: pnpmVersion
+  type: string
+  default: '9'
+
+steps:
+- template: ./tmpl-setup-node-pnpm.yml
+  parameters:
+    workingDirectory: ${{ parameters.workingDirectory }}
+    nodeVersion: ${{ parameters.nodeVersion }}
+    pnpmVersion: ${{ parameters.pnpmVersion }}
+
+- script: |
+    if [ -z "${SF_ACCESS_TOKEN}" ]; then
+      echo "Missing SF_ACCESS_TOKEN"
+      exit 1
+    fi
+
+    pnpm run provision -- --sf-access-token "${SF_ACCESS_TOKEN}"
+  displayName: Run provision
+  workingDirectory: ${{ parameters.workingDirectory }}
+  env:
+    ENVIRONMENT: ${{ parameters.environment }}
+    KEY_NAME: ${{ parameters.keyName }}
+    AZDO_PROJECT: ${{ parameters.azdoProject }}
+    SF_INSTANCE_URL: ${{ parameters.sfInstanceUrl }}
+    SF_API_VERSION: ${{ parameters.sfApiVersion }}
+    SF_PROFILE_NAME: ${{ parameters.sfProfileName }}
+    SF_PROFILE_ID: ${{ parameters.sfProfileId }}
+    AZDO_ORG_URL: ${{ parameters.azdoOrgUrl }}
+    AZDO_PAT: ${{ parameters.azdoPat }}
+    SF_ACCESS_TOKEN: ${{ parameters.sfAccessToken }}
